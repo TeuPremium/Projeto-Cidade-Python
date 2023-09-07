@@ -3,7 +3,7 @@ class Car:
         self.x = x_pos
         self.y = y_pos
         self.speed = 0
-        self.acceleration = 1
+        self.acceleration = 2
 
     def move(x_pos : int, y_pos : int):
         pass
