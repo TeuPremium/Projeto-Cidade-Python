@@ -14,6 +14,7 @@ class Car:
 
 class Person:
     def __init__(self, x_pos : int, y_pos : int):
+        self.street_width
         self.x = x_pos
         self.y = y_pos
 
