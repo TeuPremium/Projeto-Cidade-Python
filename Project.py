@@ -53,7 +53,7 @@ class street:
 
     
 class city:
-    def __init__(self, lane_width=2, city_length=10, city_height=10, streets=2, margin =2):
+    def __init__(self, lane_width=1, city_length=20, city_height=20, streets=4, margin =2):
         self.number = False
         self.max_speed = False
         self.streets = streets
@@ -141,13 +141,22 @@ class city:
             city_length = self.city_length
             city_height = self.city_height
 
-            v_gap = city_height - 4 * padding
-            h_gap = city_length - 4 * padding
+            # 
+            if((((self.streets * self.lane_width*2) + padding*2)>city_height) or (((self.streets * self.lane_width*2) + padding*2)>city_length)):
+                print((self.streets * self.lane_width*2) + padding*2)
+                print(city_height)
+                raise ValueError()
 
+            # Calculates the space between streets based on the distance from the sides
+            # and the given street width
+            v_gap = (city_height - (2 * padding + street_width )) / (self.streets -1) 
+            h_gap = (city_length - (2 * padding + street_width))  / (self.streets -1)
+            
+            
             # Coordinates for the first horizontal street
             horizontal_streets.append([0, padding, city_length, padding])
             horizontal_streets.append([0, padding + street_width, city_length, padding + street_width])
-
+            # Coordinates for the first vertical street
             vertical_streets.append([ padding,0,padding,  city_height])
             vertical_streets.append([ padding + street_width,0, padding + street_width,  city_height])
 
@@ -155,20 +164,25 @@ class city:
             street_gap = v_gap / (self.streets - 1)
 
             for i in range(1, self.streets):
-                y = padding + i * street_gap
+                y = padding + i * v_gap
+                x = padding + i * h_gap
                 horizontal_streets.append([0, y, city_length, y])
                 horizontal_streets.append([0, y + street_width, city_length, y + street_width])
 
-    pass
+                vertical_streets.append([ x,0,x,  city_height])
+                vertical_streets.append([ x + street_width,0, x + street_width,  city_height])
+
+
 
     def plot_streets(self):
         plt.figure(figsize=(self.city_length, self.city_height))
 
-        for h_street_coords in self.horizontal_streets:
+        for i, h_street_coords in enumerate(self.horizontal_streets):
             plt.plot(h_street_coords[::2], h_street_coords[1::2], color='black')
-
-        for v_street_coords in self.vertical_streets:
+   
+        for i, v_street_coords in enumerate(self.vertical_streets):
             plt.plot(v_street_coords[::2], v_street_coords[1::2], color='black')
+        
 
         plt.xlim(0, self.city_length)
         plt.ylim(0, self.city_height)
