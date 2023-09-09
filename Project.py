@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 class Car:
     def __init__(self, x_pos: int, y_pos: int):
         self.x = x_pos
@@ -51,7 +53,7 @@ class street:
 
     
 class city:
-    def __init__(self, lane_width=1, city_length=10, city_height=10, streets=3, margin = 1):
+    def __init__(self, lane_width=2, city_length=10, city_height=10, streets=2, margin =2):
         self.number = False
         self.max_speed = False
         self.streets = streets
@@ -59,40 +61,121 @@ class city:
         self.city_height = city_height
         self.lane_width = lane_width
         self.margin = margin
+        self.horizontal_streets =  []
+        self.vertical_streets =  []
 
-    def calculate_h_streets(self):
-        horizontal_streets = []
-        vertical_streets = []
-        padding = self.margin
-        width = self.width
-        city_length = self.city_length
-        city_height = self.city_height
+    def calculate_streets(self):
+        # padding = self.margin
+        # width = self.lane_width
+
+        # horizontal_streets = self.horizontal_streets
+        # vertical_streets = self.vertical_streets
+
+        # city_length = self.city_length
+        # city_height = self.city_height
+
+        # v_gap = city_height - 2*padding #gap between horizontal streets
+        # h_gap = city_length - 2*padding #gap between vertical streets
+
         
-        # para facilitar, eu separei as ruas horizontais e verticais
-        # está sujeito a mudanças, mas imagino que facilite para plotar
-        horizontal_streets.append([ 0 , padding,
-                                    0, padding + width, 
-                                    city_length, padding,
-                                    city_length, padding + width]) #rua de baixo
-        # coordenadas da rua (x, y, x, y, x, y, x, y)
-        # cantos inferiores esquerdo e direito e cantos superiores esquerdo e direito respectivamente
+        # # para facilitar, eu separei as ruas horizontais e verticais
+        # # está sujeito a mudanças, mas imagino que facilite para plotar
+        # horizontal_streets.append([ 0 , padding,
+        #                             0, padding + width, 
+        #                             city_length, padding,
+        #                             city_length, padding + width]) #rua de baixo
+        # horizontal_streets.append([ 0 , padding,
+        #                             0, padding + width*2, 
+        #                             city_length, padding,
+        #                             city_length, padding + width*2]) #rua de baixo
+        # # coordenadas da rua (x, y, x, y, x, y, x, y, orientation**)
+        # # cantos inferiores esquerdo e direito e cantos superiores esquerdo e direito respectivamente
 
-        vertical_streets.append([ padding , 0 ,
-                                     padding + width, 0,
-                                    padding ,city_height,
-                                     padding + width, city_height]) #rua de baixo
+        # vertical_streets.append([   padding , 0 ,
+        #                             padding + width, 0,
+        #                             padding ,city_height,
+        #                             padding + width, city_height]) #rua de baixo
+        # vertical_streets.append([   padding , 0 ,
+        #                             padding + width*2, 0,
+        #                             padding ,city_height,
+        #                             padding + width*2, city_height]) #rua de baixo
 
-        for _ in range(self.streets - 1):
-            horizontal_streets.append()
-            vertical_streets.append()
+        # vertical_start = v_gap + padding + width
+        # horizontal_start = h_gap + padding + width
+        # for _ in range(self.streets - 1):
+        #     horizontal_streets.append([ 0 , padding,
+        #                                 0, padding + width, 
+        #                                 city_length, padding,
+        #                                 city_length, padding + width])
+        #     horizontal_streets.append([ 0 , padding,
+        #                                 0, padding + width*2, 
+        #                                 city_length, padding,
+        #                                 city_length, padding + width*2]) #rua de baixo
             
+        #     vertical_streets.append([   padding , 0 ,
+        #                                 padding + width, 0,
+        #                                 padding ,city_height,
+        #                                 padding + width, city_height])
+        #     vertical_streets.append([   padding , 0 ,
+        #                                 padding + width*2, 0,
+        #                                 padding ,city_height,
+        #                                 padding + width*2, city_height]) #rua de baixo
+            
+        #     vertical_start += v_gap + width
+        #     horizontal_start += h_gap + width
 
-        create_horizontal_street = generate_street("h", self.lane_width)
-        print(create_horizontal_street)
-        create_street = generate_street("v", self.lane_width)
-        print(create_street)
-        
+            
+        # print(horizontal_streets)
+        # # create_horizontal_street = generate_street("h", self.lane_width, )
+        # # print(create_horizontal_street)
+        # # create_street = generate_street("v", self.lane_width)
+        # # print(create_street)
+
+            padding = self.margin
+            lane_width = self.lane_width
+            street_width = 2 * lane_width  # Total width of the street (two lanes)
+
+            horizontal_streets = self.horizontal_streets
+            vertical_streets = self.vertical_streets
+
+            city_length = self.city_length
+            city_height = self.city_height
+
+            v_gap = city_height - 4 * padding
+            h_gap = city_length - 4 * padding
+
+            # Coordinates for the first horizontal street
+            horizontal_streets.append([0, padding, city_length, padding])
+            horizontal_streets.append([0, padding + street_width, city_length, padding + street_width])
+
+            vertical_streets.append([ padding,0,padding,  city_height])
+            vertical_streets.append([ padding + street_width,0, padding + street_width,  city_height])
+
+            # Calculate the gap between streets
+            street_gap = v_gap / (self.streets - 1)
+
+            for i in range(1, self.streets):
+                y = padding + i * street_gap
+                horizontal_streets.append([0, y, city_length, y])
+                horizontal_streets.append([0, y + street_width, city_length, y + street_width])
+
     pass
+
+    def plot_streets(self):
+        plt.figure(figsize=(self.city_length, self.city_height))
+
+        for h_street_coords in self.horizontal_streets:
+            plt.plot(h_street_coords[::2], h_street_coords[1::2], color='black')
+
+        for v_street_coords in self.vertical_streets:
+            plt.plot(v_street_coords[::2], v_street_coords[1::2], color='black')
+
+        plt.xlim(0, self.city_length)
+        plt.ylim(0, self.city_height)
+
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.show()
+
 
     def generate_street(self, orientation, width):
         self.corner_left_bottom = False
@@ -103,8 +186,8 @@ class city:
         self.width = width
 
 p = city()
-p.calculate_h_streets()
-
+p.calculate_streets()
+p.plot_streets()
 
 
 
