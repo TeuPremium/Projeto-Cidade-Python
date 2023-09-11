@@ -94,7 +94,7 @@ class city:
             plt.plot(h_street_coords[::2], h_street_coords[1::2], color='black')
    
         for i, v_street_coords in enumerate(self.vertical_streets):
-            plt.plot(v_street_coords[::2], v_street_coords[1::2], color='black')
+            plt.plot(v_street_coords[::2], v_street_coords[1::2], color='orange')
         
 
         plt.xlim(0, self.city_length)
@@ -104,15 +104,6 @@ class city:
         plt.show()
 
 
-    def generate_street(self, orientation, width):
-        self.corner_left_bottom = False
-        self.corner_left_top = False
-        self.corner_right_bottom = False
-        self.corner_right_top = False
-        self.orientation = orientation
-        self.width = width
 
-p = city()
-p.calculate_streets()
-p.plot_streets()
+
 
