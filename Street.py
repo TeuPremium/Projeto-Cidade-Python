@@ -19,14 +19,14 @@
 # ruas vão ter suas intercessões
 
 import matplotlib.pyplot as plt
-class street:
-    def __init__(self, orientation, width):
-        self.corner_left_bottom = False
-        self.corner_left_top = False
-        self.corner_right_bottom = False
-        self.corner_right_top = False
-        self.orientation = orientation
-        self.width = width
+# class street:
+#     def __init__(self, orientation, width):
+#         self.corner_left_bottom = False
+#         self.corner_left_top = False
+#         self.corner_right_bottom = False
+#         self.corner_right_top = False
+#         self.orientation = orientation
+#         self.width = width
         
 
     
