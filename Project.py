@@ -1,5 +1,3 @@
-
-
 class Car:
     def __init__(self, id, velocidade_max):
         self.id = id    
@@ -26,25 +24,17 @@ class Car:
 
     def safe_distance(self, car2):
         distnc = car2.x - self.x
-        bool = distnc >= #largura de faixa
+        bool = distnc >= 1 # largura da faixa
         if bool == False:
             self.speed
 
-    
-
-
-
-
-    
-
 class Person:
-
-    def __init__(self, id):
-        self.x = 0
-        self.y = 0
+    def __init__(self, id, x = 0, y = 0, destiny = (20,20)):
+        self.x = x
+        self.y = y
         self.id = id
         self.in_car = False
-        self.destiny = (0,0)
+        self.destiny = destiny
 
     def person_destiny(self, x, y):
         self.destino = (x,y)
