@@ -107,36 +107,39 @@ class Central_Controle():
     def definir_rota(self, carro, inicio, destino):
         x_inicio, y_inicio = inicio
         x_destino, y_destino = destino
+        self.lista_curvas = []
 
+        
+        if inicio == destino:
+            raise ValueError("inicio e destino iguais")
         
         for linha, linha_blocos in enumerate(self.blocos):
             for coluna, bloco in enumerate(linha_blocos):
                 x1, y1 = bloco
                 x2, y2 = x1 + self.largura, y1 + self.largura
 
-                if x1 <= x_inicio <= x2 and y1 <= y_inicio <= y2:
+                if x1 < x_inicio < x2 and y1 < y_inicio < y2:
                     return 0
                     raise Exception(f'O ponto de início ({x_inicio}, {y_inicio}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
                 
-                if x1 <= x_destino <= x2 and y1 <= y_destino <= y2:
+                if x1 < x_destino < x2 and y1 < y_destino < y2:
                     return 0
                     raise Exception(f'O ponto de início ({x_destino}, {y_destino}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
-
+        
+        # o carro só deverá andar em uma única direção, que é horizontal ou vertical
+        # esse if/else serve para determinar onde o carro vai parar 
+        # de forma paralela ao destino final designado.
         if(x_inicio<=self.largura):
             destino1 = (x_inicio, y_destino)
 
         else:
             destino1 = (x_destino, y_inicio)
 
-
-        # # se destino1 está dentro de um bloco, terá coordenadas ajustadas
-        # for linha, linha_blocos in enumerate(self.blocos):
-        #     for coluna, bloco in enumerate(linha_blocos):
-        #         x1, y1 = bloco
-        #         x2, y2 = x1 + self.largura, y1 + self.largura
-        #         if x1 <= destino1[0] <= x2 and y1 <= destino1[1] <= y2:
-        #             destino1 = (x2, destino1[1])
-
+        # se o primeiro destino for igual ao destino final a função irá retornar apenas um ponto 
+        if (destino1== destino):
+             self.lista_curvas.append(destino)
+             print(self.lista_curvas)
+             return (self.lista_curvas)
 # <------------------------------------_>
 
         ultimo_bloco = blocos[-1][-1]
@@ -147,32 +150,32 @@ class Central_Controle():
 
         # Verificar se destino1 está muito próximo da borda da cidade
         margem = self.largura  # Define a margem de segurança
+
         if destino1[0] < margem:
             destino1 = (margem, destino1[1])
+
         elif destino1[0] > limite_da_cidade_x - margem:  
             destino1 = (limite_da_cidade_x - margem, destino1[1])
 
         if destino1[1] < margem:
             destino1 = (destino1[0], margem)
+
         elif destino1[1] > limite_da_cidade_y - margem:  
             destino1 = (destino1[0], limite_da_cidade_y - margem)
 
-        # Verificar se destino1 está dentro de algum bloco e ajustar conforme necessário
+        # Verificar se destino1 está paralelo de algum bloco e ajustar conforme necessário
         for linha, linha_blocos in enumerate(self.blocos):
             for coluna, bloco in enumerate(linha_blocos):
                 x1, y1 = bloco
                 x2, y2 = x1 + self.largura, y1 + self.largura
 
-                if x1 <= destino1[0] <= x2 and y1 <= destino1[1] <= y2:
-                    if abs(destino1[0] - x1) < abs(destino1[0] - x2):
-                        destino1 = (x1, destino1[1])
-                    else:
-                        destino1 = (x2, destino1[1])
+                if x1 < destino1[0] < x2:
+                    destino1 = (x1, destino1[1])
 
-                    if abs(destino1[1] - y1) < abs(destino1[1] - y2):
-                        destino1 = (destino1[0], y1)
-                    else:
-                        destino1 = (destino1[0], y2)
+                elif y1 < destino1[1] < y2:
+                    destino1 = (destino1[0], y1)
+                   
+
         print(destino1)
 
 
@@ -183,7 +186,7 @@ class Central_Controle():
 
 ruas = Rua()
 blocos = ruas.generate_street_coordinates()
-carros = Carro()
+carros = Carro(1)
 cent1 = Central_Controle(blocos, 1)
 
 # base = (4.25,0,0)
@@ -199,6 +202,6 @@ central = Central_Controle(blocos, largura)
 
 # Ponto de início
 inicio = (5,5)  # Exemplo de ponto de início
-destino = (11, 11)  # Exemplo de ponto de destino
+destino = (5, 5)  # Exemplo de ponto de destino
 
 central.definir_rota(None, inicio, destino)
