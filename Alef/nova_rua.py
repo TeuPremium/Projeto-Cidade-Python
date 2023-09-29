@@ -101,52 +101,78 @@ class Carro():
 
 class Central_Controle():
     def __init__(self, blocos, largura_bloco = 4):
+        self.lista_curvas = []
         self.blocos = blocos
         self.largura = largura_bloco
+        self.max = 0
 
-    def definir_rota(self, carro, inicio, destino):
-        x_inicio, y_inicio = inicio
-        x_destino, y_destino = destino
-        self.lista_curvas = []
-
-        
-        if inicio == destino:
-            raise ValueError("inicio e destino iguais")
-        
+    def is_interval_intersecting_block(self, x_inicio, y_inicio, x_destino, y_destino):
         for linha, linha_blocos in enumerate(self.blocos):
             for coluna, bloco in enumerate(linha_blocos):
                 x1, y1 = bloco
                 x2, y2 = x1 + self.largura, y1 + self.largura
 
+                if (x_inicio < x2 and x_destino > x1 and
+                    y_inicio < y2 and y_destino > y1):
+                    return True
+
+        return False
+
+    def definir_rota(self, carro, inicio, destino):
+        if self.max>4:
+            return 0
+        self.max = self.max +1
+        x_inicio, y_inicio = inicio
+        x_destino, y_destino = destino
+
+        # retorna error se o destino = inicio
+        if inicio == destino:
+            raise ValueError("inicio e destino iguais")
+        # retorna 0 se o destino for dentro de um bloco
+        for linha, linha_blocos in enumerate(self.blocos):
+            for coluna, bloco in enumerate(linha_blocos):
+                x1, y1 = bloco
+                x2, y2 = x1 + self.largura, y1 + self.largura
                 if x1 < x_inicio < x2 and y1 < y_inicio < y2:
+                    print(f'O ponto de início ({x_inicio}, {y_inicio}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
                     return 0
-                    raise Exception(f'O ponto de início ({x_inicio}, {y_inicio}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
-                
                 if x1 < x_destino < x2 and y1 < y_destino < y2:
+                    print(f'O ponto de início ({x_destino}, {y_destino}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
                     return 0
-                    raise Exception(f'O ponto de início ({x_destino}, {y_destino}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
+        
+        
+
+        # Obter o valor máximo de x e y a partir da última tupla
+        ultimo_bloco = blocos[-1][-1]
+        limite_da_cidade_x = ultimo_bloco[0] + self.largura
+        limite_da_cidade_y = ultimo_bloco[1] + self.largura
         
         # o carro só deverá andar em uma única direção, que é horizontal ou vertical
         # esse if/else serve para determinar onde o carro vai parar 
         # de forma paralela ao destino final designado.
-        if(x_inicio<=self.largura):
-            destino1 = (x_inicio, y_destino)
 
-        else:
-            destino1 = (x_destino, y_inicio)
+        if(x_inicio != destino[0]):
+            if((limite_da_cidade_x - self.largura <= x_inicio or x_inicio <= self.largura) and \
+            (limite_da_cidade_x - self.largura <= x_destino or x_destino <= self.largura)):
+                destino1 = (x_inicio, y_destino)
+            else:
+                destino1 = (x_destino, y_inicio)
+
+        elif(y_inicio != destino[1]):
+            if((limite_da_cidade_y - self.largura <= y_inicio <= self.largura) and \
+                (limite_da_cidade_y - self.largura <= y_destino <= self.largura)):
+                    destino1 = (x_destino, y_inicio)
+            else:        
+                destino1 = (x_inicio, y_destino)
+
 
         # se o primeiro destino for igual ao destino final a função irá retornar apenas um ponto 
-        if (destino1== destino):
+        if (destino1 == destino):
              self.lista_curvas.append(destino)
              print(self.lista_curvas)
              return (self.lista_curvas)
-# <------------------------------------_>
+# <------------------------------------>
 
-        ultimo_bloco = blocos[-1][-1]
-
-        # Obter o valor máximo de x e y a partir da última tupla
-        limite_da_cidade_x = ultimo_bloco[0] + self.largura
-        limite_da_cidade_y = ultimo_bloco[1] + self.largura
 
         # Verificar se destino1 está muito próximo da borda da cidade
         margem = self.largura  # Define a margem de segurança
@@ -162,25 +188,39 @@ class Central_Controle():
 
         elif destino1[1] > limite_da_cidade_y - margem:  
             destino1 = (destino1[0], limite_da_cidade_y - margem)
+        
+        # testa se o valor vai atravessar um bloco
+        if self.is_interval_intersecting_block(x_inicio, y_inicio, destino1[0], destino1[1]):
+            print(destino1)
+            print(inicio)
+            # Inverte os valores de x e y
+            if x_inicio != destino1[0]:
+                destino1 = (x_inicio, y_destino)  # Altera x_destino para y_destino e vice-versa
+            else:
+                destino1 = (x_destino, y_inicio)  # Altera x_destino para y_destino e vice-versa
 
         # Verificar se destino1 está paralelo de algum bloco e ajustar conforme necessário
         for linha, linha_blocos in enumerate(self.blocos):
             for coluna, bloco in enumerate(linha_blocos):
                 x1, y1 = bloco
                 x2, y2 = x1 + self.largura, y1 + self.largura
-
                 if x1 < destino1[0] < x2:
                     destino1 = (x1, destino1[1])
 
                 elif y1 < destino1[1] < y2:
                     destino1 = (destino1[0], y1)
-                   
-
-        print(destino1)
-
 
 
         
+           
+
+        self.lista_curvas.append(destino1)
+        # print(self.lista_curvas)
+        if destino1 != destino:
+            return self.definir_rota(carro, destino1, destino)
+        else:
+            return self.lista_curvas
+
 
 
 
@@ -189,11 +229,11 @@ blocos = ruas.generate_street_coordinates()
 carros = Carro(1)
 cent1 = Central_Controle(blocos, 1)
 
-# base = (4.25,0,0)
-# print(blocos)
-# while (1):
-#     ruas.draw_map([base])
-#     base = carros.go_to(base, ruas)
+base = (4.25,0,0)
+
+while (1):
+    ruas.draw_map([base])
+    base = carros.go_to(base, ruas)
     
 # # Exemplo de uso
 largura = 4
@@ -201,7 +241,7 @@ largura = 4
 central = Central_Controle(blocos, largura)
 
 # Ponto de início
-inicio = (5,5)  # Exemplo de ponto de início
-destino = (5, 5)  # Exemplo de ponto de destino
+inicio = (5,0)  # Exemplo de ponto de início
+destino = (16, 21)  # Exemplo de ponto de destino
 
 central.definir_rota(None, inicio, destino)
