@@ -100,32 +100,91 @@ class Carro():
 
 
 class Central_Controle():
-    def __init__(self, blocos, largura = 1):
+    def __init__(self, blocos, largura_bloco = 4):
         self.blocos = blocos
-        self.largura = largura
+        self.largura = largura_bloco
 
     def definir_rota(self, carro, inicio, destino):
         x_inicio, y_inicio = inicio
         x_destino, y_destino = destino
 
-
+        
         for linha, linha_blocos in enumerate(self.blocos):
             for coluna, bloco in enumerate(linha_blocos):
                 x1, y1 = bloco
                 x2, y2 = x1 + self.largura, y1 + self.largura
 
                 if x1 <= x_inicio <= x2 and y1 <= y_inicio <= y2:
+                    return 0
                     raise Exception(f'O ponto de início ({x_inicio}, {y_inicio}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
                 
                 if x1 <= x_destino <= x2 and y1 <= y_destino <= y2:
+                    return 0
                     raise Exception(f'O ponto de início ({x_destino}, {y_destino}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
+
+        if(x_inicio<=self.largura):
+            destino1 = (x_inicio, y_destino)
+
+        else:
+            destino1 = (x_destino, y_inicio)
+
+
+        # # se destino1 está dentro de um bloco, terá coordenadas ajustadas
+        # for linha, linha_blocos in enumerate(self.blocos):
+        #     for coluna, bloco in enumerate(linha_blocos):
+        #         x1, y1 = bloco
+        #         x2, y2 = x1 + self.largura, y1 + self.largura
+        #         if x1 <= destino1[0] <= x2 and y1 <= destino1[1] <= y2:
+        #             destino1 = (x2, destino1[1])
+
+# <------------------------------------_>
+
+        ultimo_bloco = blocos[-1][-1]
+
+        # Obter o valor máximo de x e y a partir da última tupla
+        limite_da_cidade_x = ultimo_bloco[0] + self.largura
+        limite_da_cidade_y = ultimo_bloco[1] + self.largura
+
+        # Verificar se destino1 está muito próximo da borda da cidade
+        margem = self.largura  # Define a margem de segurança
+        if destino1[0] < margem:
+            destino1 = (margem, destino1[1])
+        elif destino1[0] > limite_da_cidade_x - margem:  
+            destino1 = (limite_da_cidade_x - margem, destino1[1])
+
+        if destino1[1] < margem:
+            destino1 = (destino1[0], margem)
+        elif destino1[1] > limite_da_cidade_y - margem:  
+            destino1 = (destino1[0], limite_da_cidade_y - margem)
+
+        # Verificar se destino1 está dentro de algum bloco e ajustar conforme necessário
+        for linha, linha_blocos in enumerate(self.blocos):
+            for coluna, bloco in enumerate(linha_blocos):
+                x1, y1 = bloco
+                x2, y2 = x1 + self.largura, y1 + self.largura
+
+                if x1 <= destino1[0] <= x2 and y1 <= destino1[1] <= y2:
+                    if abs(destino1[0] - x1) < abs(destino1[0] - x2):
+                        destino1 = (x1, destino1[1])
+                    else:
+                        destino1 = (x2, destino1[1])
+
+                    if abs(destino1[1] - y1) < abs(destino1[1] - y2):
+                        destino1 = (destino1[0], y1)
+                    else:
+                        destino1 = (destino1[0], y2)
+        print(destino1)
+
+
+
+        
 
 
 
 ruas = Rua()
 blocos = ruas.generate_street_coordinates()
-# carros = Carro()
-# cent1 = Central_Controle(blocos, 1)
+carros = Carro()
+cent1 = Central_Controle(blocos, 1)
 
 # base = (4.25,0,0)
 # print(blocos)
@@ -133,12 +192,13 @@ blocos = ruas.generate_street_coordinates()
 #     ruas.draw_map([base])
 #     base = carros.go_to(base, ruas)
     
-# Exemplo de uso
+# # Exemplo de uso
 largura = 4
+
 central = Central_Controle(blocos, largura)
 
 # Ponto de início
-inicio = (0,0)  # Exemplo de ponto de início
-destino = (12, 12)  # Exemplo de ponto de destino
+inicio = (5,5)  # Exemplo de ponto de início
+destino = (11, 11)  # Exemplo de ponto de destino
 
 central.definir_rota(None, inicio, destino)
