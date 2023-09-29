@@ -3,23 +3,42 @@ import matplotlib.patches as patches
 from math import pi
 
 class Rua:
-    def __init__(self, linhas = 4, colunas = 4, tamanho = 4, carro = 1):
+    def __init__(self, linhas = 4, colunas = 4, tamanho = 4, carro = 1, limite_velocidade = 10):
         self.linhas = linhas
         self.colunas = colunas
         self.quadras = (linhas + 1) * (colunas + 1)
         self.tamanho = tamanho
         self.carro = carro
+        self.blocos = [[None for _ in range(colunas)] for _ in range(linhas )]
 
+    def generate_street_coordinates(self):
+        x, y = 0, 0
+        for linha in range(self.linhas):
+            for coluna in range(self.colunas):
+                self.blocos[linha][coluna] = (x, y)
+                x += self.carro * 2 + self.tamanho
+            y += self.carro * 2 + self.tamanho
+            x = 0
+
+        return self.blocos
+
+    def is_block_free(self, linha, coluna):
+        if self.blocos[linha][coluna] is not None:
+            return True
+        else:
+            return False
+        
     def draw_map(self, veiculos = [(4.25,0,0)]):
         _, ax = plt.subplots()
         
         # Desenhar quadras
         x, y = 0,0
-        for _ in range(self.linhas):
-            for _ in range(self.colunas):
+        for linha in range(self.linhas):
+            for coluna in range(self.colunas):
+                # self.blocos[linha][coluna] = (x, y)
                 ax.add_patch(patches.Rectangle(
                     (x,y), self.tamanho, self.tamanho,
-                    facecolor= 'yellow',
+                    facecolor= 'orange',
                     edgecolor= 'black',
                     fill=True
                 ))
@@ -70,14 +89,56 @@ class Carro():
         
         # Mudar isso para checar o angulo
         return (x+x_speed, y+y_speed, angle)
+    
+    def get_current_block(self, car_position, mapa: Rua):
+        x, y, _ = car_position
+        linha = int(y // mapa.tamanho)
+        coluna = int(x // mapa.tamanho)
+        return linha, coluna
+    
+   
+
+
+class Central_Controle():
+    def __init__(self, blocos, largura = 1):
+        self.blocos = blocos
+        self.largura = largura
+
+    def definir_rota(self, carro, inicio, destino):
+        x_inicio, y_inicio = inicio
+        x_destino, y_destino = destino
+
+
+        for linha, linha_blocos in enumerate(self.blocos):
+            for coluna, bloco in enumerate(linha_blocos):
+                x1, y1 = bloco
+                x2, y2 = x1 + self.largura, y1 + self.largura
+
+                if x1 <= x_inicio <= x2 and y1 <= y_inicio <= y2:
+                    raise Exception(f'O ponto de início ({x_inicio}, {y_inicio}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
+                
+                if x1 <= x_destino <= x2 and y1 <= y_destino <= y2:
+                    raise Exception(f'O ponto de início ({x_destino}, {y_destino}) está dentro do bloco ({x1}, {y1}) - ({x2}, {y2}) na linha {linha}, coluna {coluna}')
+
+
 
 ruas = Rua()
-carros = Carro()
-base = (4.25,0,0)
+blocos = ruas.generate_street_coordinates()
+# carros = Carro()
+# cent1 = Central_Controle(blocos, 1)
 
+# base = (4.25,0,0)
+# print(blocos)
+# while (1):
+#     ruas.draw_map([base])
+#     base = carros.go_to(base, ruas)
+    
+# Exemplo de uso
+largura = 4
+central = Central_Controle(blocos, largura)
 
+# Ponto de início
+inicio = (0,0)  # Exemplo de ponto de início
+destino = (12, 12)  # Exemplo de ponto de destino
 
-
-while (1):
-    ruas.draw_map([base])
-    base = carros.go_to(base, ruas)
+central.definir_rota(None, inicio, destino)
