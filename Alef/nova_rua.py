@@ -195,24 +195,11 @@ class Central_Controle():
         
 # <------------------------------------>
 
-        # Verificar se destino1 está muito próximo da borda da cidade
-        margem = self.largura  # Define a margem de segurança
-        # testa se o valor vai atravessar um bloco
-        if destino1[0] < margem:
-            destino1 = (margem, destino1[1])
 
-        elif destino1[0] > limite_da_cidade_x - margem:  
-            destino1 = (limite_da_cidade_x - margem, destino1[1])
-
-        if destino1[1] < margem:
-            destino1 = (destino1[0], margem)
-
-        elif destino1[1] > limite_da_cidade_y - margem:  
-            destino1 = (destino1[0], limite_da_cidade_y - margem)
-
-
+        print(x_inicio, y_inicio)
         atravessa = self.atravessa_quarteirao(x_inicio, y_inicio, destino1[0], destino1[1])
-    
+
+        print(atravessa)
 
         if (atravessa and inicio != atravessa):
             print("atravessa!")
@@ -228,12 +215,32 @@ class Central_Controle():
                 x1, y1 = bloco
                 x2, y2 = x1 + self.largura, y1 + self.largura
                 if x1 < destino1[0] < x2:
-                    print(x1, destino1)
-                    destino1 = (x1, destino1[1])
-
+                    print("ajuste")
+                    if(destino[0]>x1):
+                        destino1 = (x1, y_inicio)
+                    else:
+                        destino1 = (x2, y_inicio)
                 elif y1 < destino1[1] < y2:
-                    print(y1, destino1)
-                    destino1 = (destino1[0], y1)
+                    if(destino[1]>y1):
+                        destino1 = (x_inicio, y1)
+                    else:
+                        destino1 = (x_inicio, y2)
+
+
+        # Verificar se destino1 está muito próximo da borda da cidade
+        margem = self.largura  # Define a margem de segurança
+        # testa se o valor vai atravessar um bloco
+        if destino1[0] < margem:
+            destino1 = (margem, destino1[1])
+
+        elif destino1[0] > limite_da_cidade_x - margem:  
+            destino1 = (limite_da_cidade_x - margem, destino1[1])
+
+        if destino1[1] < margem:
+            destino1 = (destino1[0], margem)
+
+        elif destino1[1] > limite_da_cidade_y - margem:  
+            destino1 = (destino1[0], limite_da_cidade_y - margem)
         
         print(destino1)
         if(inicio == destino1):
@@ -263,17 +270,17 @@ central = Central_Controle(blocos, largura)
 
 # Ponto de início
 
-inicio = (5,0)  # Exemplo de ponto de início
-destino = ( 16, 21)  # Exemplo de ponto de destino
+# destino= (0,5)  # Exemplo de ponto de início
+# inicio = ( 21, 16)  # Exemplo de ponto de destino
 
-inicio = (0,16)  # Exemplo de ponto de início
-destino = ( 21, 16)  # Exemplo de ponto de destino
+# inicio = (0,5)  # Exemplo de ponto de início
+# destino = ( 16, 21)  # Exemplo de ponto de destino
 
 inicio = (4,7)
 destino = (16,7)
 central.definir_rota(None, inicio, destino)
 
-# while (1):
-#     ruas.draw_map([base])
-#     base = carros.go_to(base, ruas)
+while (1):
+    ruas.draw_map([base])
+    base = carros.go_to(base, ruas)
     
