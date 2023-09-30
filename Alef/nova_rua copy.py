@@ -106,9 +106,9 @@ class Central_Controle():
         self.largura = largura_bloco
         self.max = 0
 
-
-
-    def atravessa_quarteirao(self, x_inicio, y_inicio, x_destino, y_destino):
+    def is_interval_intersecting_block(self, x_inicio, y_inicio, x_destino, y_destino):
+        horizontal = False
+        vertical = False
 
         for linha, linha_blocos in enumerate(self.blocos):
             for coluna, bloco in enumerate(linha_blocos):
@@ -117,20 +117,21 @@ class Central_Controle():
 
                 if (x_inicio < x2 and x_destino > x1 and
                     y_inicio < y2 and y_destino > y1):
-                    if x_inicio < x1 + (x2 - x1) / 2:
-                        return (x1, y_inicio)
+                    if(x_destino!=x_inicio):
+                        return (False,True)
                     else:
-                        return (x2, y_inicio)
+                        return(True, False)
                 elif(x_inicio > x2 and x_destino < x1 and
-                    y_inicio > y2 and y_destino < y1):
-                    if y_inicio < y1 + (y2 - y1) / 2:
-                        return (x_inicio, y1)
+                    y_inicio > y2 and y_destino <y1):
+                    if(x_destino!=x_inicio):
+                        return (False,True)
                     else:
-                        return (x_inicio, y2)
+                        return(True, False)
+                
+        return (horizontal,vertical)
 
-        return False
-
-
+              
+        return (horizontal, vertical)
 
 
     def definir_rota(self, carro, inicio, destino):
@@ -173,25 +174,31 @@ class Central_Controle():
         
 
         if(x_inicio != destino[0]):
-            
             if((limite_da_cidade_x - self.largura <= x_inicio or x_inicio <= self.largura) and
             (limite_da_cidade_x - self.largura <= x_destino or x_destino <= self.largura)):
                 destino1 = (x_inicio, y_destino)
+                if(y_destino == y_inicio):
+                    destino1 = (x_destino, y_inicio)
             
             else:
-
                 destino1 = (x_destino, y_inicio)
 
         elif(y_inicio != destino[1]):
             if((limite_da_cidade_y - self.largura <= y_inicio <= self.largura) and
                 (limite_da_cidade_y - self.largura <= y_destino <= self.largura)):
-
                 destino1 = (x_destino, y_inicio)
+                if(x_destino == x_inicio):
+                    destino1 = (x_destino, y_inicio)
             else:        
 
                 destino1 = (x_inicio, y_destino)
        
         print("destino1: ", destino1)
+        # se o primeiro destino for igual ao destino final a função irá retornar apenas um ponto 
+        if (destino1 == destino):
+             self.lista_curvas.append(destino)
+             print(self.lista_curvas)
+             return (self.lista_curvas)
         
 # <------------------------------------>
 
@@ -211,40 +218,37 @@ class Central_Controle():
             destino1 = (destino1[0], limite_da_cidade_y - margem)
 
 
-        atravessa = self.atravessa_quarteirao(x_inicio, y_inicio, destino1[0], destino1[1])
-    
+        horizontal, vertical = self.is_interval_intersecting_block(x_inicio, y_inicio, destino1[0], destino1[1])
 
-        if (atravessa and inicio != atravessa):
-            print("atravessa!")
-            print(atravessa)
-            destino1 = atravessa
-            self.lista_curvas.append(destino1)
-            return self.definir_rota(carro, destino1, destino)
+        if (horizontal):
+            destino1 = (x_inicio, y_destino)  # Altera x_destino para y_destino e vice-versa
+            
+        elif (vertical):
+            destino1 = (x_destino, y_inicio)  # Altera x_destino para y_destino e vice-versa
+        print("post alter: ", destino1)
+
         
-        
+
         # Verificar se destino1 está paralelo de algum bloco e ajustar conforme necessário
         for linha, linha_blocos in enumerate(self.blocos):
             for coluna, bloco in enumerate(linha_blocos):
                 x1, y1 = bloco
                 x2, y2 = x1 + self.largura, y1 + self.largura
                 if x1 < destino1[0] < x2:
-                    print(x1, destino1)
                     destino1 = (x1, destino1[1])
 
                 elif y1 < destino1[1] < y2:
-                    print(y1, destino1)
                     destino1 = (destino1[0], y1)
-        
-        print(destino1)
+
         if(inicio == destino1):
-           destino1 = (x_destino, y_destino)
+            print("quero comer vidro")
 
         self.lista_curvas.append(destino1)
         if destino1 != destino:
             return self.definir_rota(carro, destino1, destino)
         else:
-            print(self.lista_curvas)
             return self.lista_curvas
+
 
 
 
@@ -260,17 +264,10 @@ largura = 4
 
 central = Central_Controle(blocos, largura)
 
-
 # Ponto de início
+inicio = (0, 5)  # Exemplo de ponto de início
+destino = (21,16)  # Exemplo de ponto de destino
 
-inicio = (5,0)  # Exemplo de ponto de início
-destino = ( 16, 21)  # Exemplo de ponto de destino
-
-inicio = (0,16)  # Exemplo de ponto de início
-destino = ( 21, 16)  # Exemplo de ponto de destino
-
-inicio = (4,7)
-destino = (16,7)
 central.definir_rota(None, inicio, destino)
 
 # while (1):
