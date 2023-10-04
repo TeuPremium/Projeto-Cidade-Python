@@ -71,24 +71,55 @@ class Rua:
         plt.show()
 
 class Carro():
-    def __init__(self, max_speed = 1):
+    def __init__(self, max_speed = 1, position = (0,0)):
         self.max_speed = max_speed
+        self.car_position = position
+        self.speed = (0, 0, 0)
     
     # Car position is absolute
     # Car block is relative
-    def go_to(self, car_position, mapa : Rua, dest_block = (0,4,1)):
+    def go_to(self, car_position,  coordenadas_destino: tuple, mapa : Rua, dest_block = (0,4,1)):
         linha, coluna, angle = dest_block
-        x, y, angle = car_position
+        a, b, angle = car_position #implementar um self
+        x, y = self.car_position
         x_speed, y_speed = 0, 0
+        x_destino, y_destino = coordenadas_destino
         
         # Checar se ta na posicao certa
-        if    (x-1 > mapa.tamanho * coluna + mapa.tamanho): x_speed -= 1; angle = 3
-        elif  (x+1 < mapa.tamanho * coluna + mapa.tamanho): x_speed += 1 ; angle = 1
-        if    (y-1 > mapa.tamanho * linha + mapa.tamanho): y_speed -= 1 ; angle = 2
-        elif  (y+1 < mapa.tamanho * linha + mapa.tamanho): y_speed += 1 ; angle = 0
-        
+        # if    (x-1 > mapa.tamanho * coluna + mapa.tamanho): x_speed -= 1; angle = 3
+        # elif  (x+1 < mapa.tamanho * coluna + mapa.tamanho): x_speed += 1 ; angle = 1
+        # if    (y-1 > mapa.tamanho * linha + mapa.tamanho): y_speed -= 1 ; angle = 2
+        # elif  (y+1 < mapa.tamanho * linha + mapa.tamanho): y_speed += 1 ; angle = 0
+
+        if(x_destino > x):
+            if(x_speed <= 0):
+                x_speed = 1
+                angle = 1                
+        elif(x_destino < x):
+            if(x_speed >= 0):
+                x_speed = -1
+                angle = 3
+        elif(y_destino > y):
+            if(y_speed <= 0):
+                y_speed = 1
+                angle = 0
+        elif(y_destino < y):
+            if(y_speed >= 0):
+                y_speed = - 1
+                angle = 2
+
+
+        self.speed = (x_speed, y_speed)    
+        x+=x_speed
+        y+=y_speed
+        self.car_position = (x,y)
+
+        print(x,y)
+        print(x_destino, y_destino)
+        # if((x_destino != x) or (y_destino != y)):
+        #     self.go_to((x,y, angle), coordenadas_destino, mapa, dest_block)
         # Mudar isso para checar o angulo
-        return (x+x_speed, y+y_speed, angle)
+        return ((x,y, angle))
     
     def get_current_block(self, car_position, mapa: Rua):
         x, y, _ = car_position
@@ -226,6 +257,7 @@ class Central_Controle():
         elif destino1[1] > limite_da_cidade_y - margem:  
             destino1 = (destino1[0], limite_da_cidade_y - margem)
         
+        # as vezes, o destino para de caminhar na ultima iteração e isso resolve o problema
         if(inicio == destino1):
            destino1 = (x_destino, y_destino)
 
@@ -240,7 +272,6 @@ class Central_Controle():
 
 ruas = Rua()
 blocos = ruas.generate_street_coordinates()
-carros = Carro(1)
 cent1 = Central_Controle(blocos, 1)
 
 base = (4.25,0,0)
@@ -252,17 +283,32 @@ central = Central_Controle(blocos, largura)
 
 # Ponto de início
 
-# destino= (0,5)  # Exemplo de ponto de início
-# inicio = ( 21, 16)  # Exemplo de ponto de destino
+destino= (0,5)  # Exemplo de ponto de início
+inicio = ( 21, 17)  # Exemplo de ponto de destino
 
+rota = central.definir_rota(None, inicio, destino)
 # inicio = (0,5)  # Exemplo de ponto de início
 # destino = ( 16, 21)  # Exemplo de ponto de destino
 
-inicio = (4,7)
-destino = (16,7)
-central.definir_rota(None, inicio, destino)
+carros = Carro(position=inicio)
+# inicio = (4,7)
+# destino = (16,7)
 
-while (1):
-    ruas.draw_map([base])
-    base = carros.go_to(base, ruas)
+print(blocos)
+
+# loop que vai movimentar o carro
+for i in rota:
+     base = carros.go_to(base, i, ruas)
+     x,y, ang = base
+     while (x,y) != i:
+        ruas.draw_map([base])
+        print('base: ', base)
+        print('i: ',i)
+        base = carros.go_to(base, i, ruas)
+        x,y, ang = base
+
+
+# while (1):
+#     ruas.draw_map([base])
+#     base = carros.go_to(base, ruas)
     
