@@ -3,6 +3,10 @@ import matplotlib.patches as patches
 from math import pi
 import random
 
+# Escolha o numero de veiculos e pessoas alterando
+# o valor de pares para a quantidade desejada:
+Pares = 10
+
 # Define a classe quadra que representa um bloco na cidade
 class quadra: # OK
     def __init__(self, x, y, tamanho = 4):
@@ -224,7 +228,7 @@ class Central_Controle():
 # Inicializa a geração da cidade e carros
 ruas = Rua()
 blocos = ruas.generate_street_coordinates()
-PARES = 10
+
 people = ruas.generate_random_people(PARES)
 central = Central_Controle(blocos, PARES) # Define os carros
 
